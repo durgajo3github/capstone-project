@@ -1,3 +1,4 @@
+[![durgajo3github](https://circleci.com/gh/durgajo3github/capstone-project.svg?style=svg)](https://circleci.com/gh/durgajo3github/capstone-project)
 
 
 # capstone-project
