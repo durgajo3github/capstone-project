@@ -280,7 +280,7 @@ workflows:
           requires:
             - "run-lint"
           filters:
-          branches:
+            branches:
               only: [test]
             
       
