@@ -294,10 +294,6 @@ workflows:
           tag: latest
           requires:
             - push-docker-image
-          filters:
-            branches:
-              only: [test]
-              
       - setup-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           requires:
