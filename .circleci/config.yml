@@ -45,7 +45,7 @@ jobs:
             command: |
               export TAG=latest
               export IMAGE_NAME=capstone
-              docker build -t reshak/$IMAGE_NAME:$TAG .
+              docker build -t durgajo3docker/$IMAGE_NAME:$TAG .
               
 #  -------------------------------------------------------------------------------------------------------------------------------------------
 #  Push the Dockerimage into DockerHub
@@ -63,9 +63,9 @@ jobs:
             command: |
               export TAG=latest
               export IMAGE_NAME=capstone
-              docker build -t reshak/$IMAGE_NAME:$TAG .
+              docker build -t durgajo3docker/$IMAGE_NAME:$TAG .
               docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
-              docker push reshak/$IMAGE_NAME:$TAG
+              docker push durgajo3docker/$IMAGE_NAME:$TAG
               
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Setup cluster to fix the orb error while unzipping the eksctl package  
@@ -101,9 +101,7 @@ jobs:
         - aws-eks/create-cluster:
             cluster-name: << parameters.cluster-name >>
             aws-region: $AWS_DEFAULT_REGION   
-            node-type: t2.micro
-            ssh-access: true
-            ssh-public-key: id_rsa.pub
+            node-type: t2.small
  
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Deploy the application from AWS ECR image to AWS EKS
@@ -278,11 +276,7 @@ workflows:
       
       - build-docker-image:
           requires:
-            - "run-lint"
-          filters:
-            branches:
-              only: [test]
-            
+            - "run-lint"   
       
       - push-docker-image:
           requires:
@@ -297,10 +291,12 @@ workflows:
           repo: eks_orb_capstone_project
           dockerfile: Dockerfile
           path: ~/project/
- #         tag: ${CIRCLE_SHA1}
           tag: latest
           requires:
             - push-docker-image
+          filters:
+            branches:
+              only: [test]
               
       - setup-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
@@ -310,7 +306,6 @@ workflows:
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-   #       docker-image-name: "${AWS_ECR_URL}/eks_orb_capstone_project:${CIRCLE_SHA1}"
           docker-image-name: "${AWS_ECR_URL}/eks_orb_capstone_project:latest"
           version-info: "${CIRCLE_SHA1}"
           requires:
@@ -319,7 +314,6 @@ workflows:
       - test-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-  #        expected-version-info: "${CIRCLE_SHA1}"
           expected-version-info: latest
           requires:
             - deploy-application
@@ -328,7 +322,6 @@ workflows:
       - set-loadbalancer:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-  #        expected-version-info: "awsdevops"
           expected-version-info: latest  
           requires:
             - test-application
