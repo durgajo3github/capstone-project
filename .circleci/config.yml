@@ -279,6 +279,10 @@ workflows:
       - build-docker-image:
           requires:
             - "run-lint"
+          filters:
+          branches:
+              only: [test]
+            
       
       - push-docker-image:
           requires:
